@@ -4,9 +4,11 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthProvider";
 import {uuid} from "uuidv4";
 import { fbDB, fbStorage } from "../firebase/firebase";
+import PostCard from "../components/PostCard";
 
 const Feeds = (props) => {
   const [video, setVideo] = useState(null);
+  const [allPosts, setAllPosts] = useState([]);
   let { signout, currentUser } = useContext(AuthContext);
   let handleSignout = async () => {
     await signout();
@@ -24,6 +26,7 @@ const Feeds = (props) => {
       let uid = currentUser.uid;
       // console.log(currentUser);
       // console.log(uid);
+      console.log(video);
       let videoUploadPromise = fbStorage.ref(`/profilePhoto/${uid}/${Date.now()}.mp4`).put(video);
       videoUploadPromise.on("state_changed",progress, error, completion);
       function progress(){
@@ -41,7 +44,7 @@ const Feeds = (props) => {
           uid:uid,
           comments:[],
           likes:[],
-          videoLink:videoUrl
+          videoURL:videoUrl
         })
         let document = await fbDB.collection("users").doc(uid).get();
         let userObj = document.data();
@@ -52,6 +55,46 @@ const Feeds = (props) => {
       console.log("error " +e);
     }
   };
+
+
+  useEffect(() => {
+    let obj = {
+      root: null,
+      threshold: "0.9",
+    };
+    function callback(allVideo) {
+      console.log("allamsdkamsd");
+      console.log(allVideo);
+      allVideo.forEach((video) => {
+        let videoTag = video.target.children[0];
+        videoTag.play().then(() => {
+          if (video.isIntersecting === false) {
+            videoTag.pause();
+            console.log("pause");
+          }
+        });
+      });
+    } 
+    let observer = new IntersectionObserver(callback, obj);
+    let element = document.querySelectorAll(".video-container");
+    // console.log(element);
+    element.forEach((el) => {
+      observer.observe(el);
+    });
+  }, [allPosts]);
+
+  useEffect(()=>{
+       fbDB.collection("posts").get().then(snapshot=>{
+         console.log("posts");
+        // console.log(snapshot.docs[0].data())
+        let allPosts = snapshot.docs.map(doc=>{
+          return doc.data();
+        })
+        console.log("all posts");
+        console.log(allPosts);
+        setAllPosts(allPosts);
+       })
+  },[])
   return (
     <>
       <h2>Feeds</h2>
@@ -64,13 +107,18 @@ const Feeds = (props) => {
           handleInput(e);
         }}
       ></input>
-
+      
       <br></br>
       <Button color="red" variant="contained" onClick={ handleUpload}>
         Upload
       </Button>
+      {
+        allPosts.map((post)=>{
+          return <PostCard key={post.pid} post={post}></PostCard>
+        })
+      }
     </>
   );
-};
+};  
 
 export default Feeds;
