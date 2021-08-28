@@ -7,10 +7,12 @@
 
 # testing
 /coverage
-
+/src/*.mp4
+/src/Demo.jsx
+/src/*.jpg
 # production
 /build
-
+.vscode
 # misc
 .DS_Store
 .env.local
