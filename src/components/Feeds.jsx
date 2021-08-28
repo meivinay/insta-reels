@@ -37,7 +37,7 @@ const Feeds = (props) => {
       }
       async function completion(){
         let videoUrl = await videoUploadPromise.snapshot.ref.getDownloadURL();
-        console.log("upload completenpm ");
+        // console.log("upload completenpm ");
         let pid = uuid();
         await fbDB.collection("posts").doc(pid).set({
           pid:pid,
@@ -63,14 +63,14 @@ const Feeds = (props) => {
       threshold: "0.9",
     };
     function callback(allVideo) {
-      console.log("allamsdkamsd");
-      console.log(allVideo);
+      // console.log("allamsdkamsd");
+      // console.log(allVideo);
       allVideo.forEach((video) => {
         let videoTag = video.target.children[0];
         videoTag.play().then(() => {
           if (video.isIntersecting === false) {
             videoTag.pause();
-            console.log("pause");
+            // console.log("pause");
           }
         });
       });
@@ -90,33 +90,32 @@ const Feeds = (props) => {
         let allPosts = snapshot.docs.map(doc=>{
           return doc.data();
         })
-        console.log("all posts");
-        console.log(allPosts);
         setAllPosts(allPosts);
        })
   },[])
   return (
     <>
-      <h2>Feeds</h2>
-      <button onClick={handleSignout}>Logout</button>
-      <br></br>
-      <input
-      placeholder="upload"
-        type="file"
-        onChange={(e) => {
-          handleInput(e);
-        }}
-      ></input>
-      
-      <br></br>
-      <Button color="red" variant="contained" onClick={ handleUpload}>
-        Upload
-      </Button>
+        <button onClick={handleSignout}>Logout</button>
+        <br></br>
+        <input
+        placeholder="upload"
+          type="file"
+          onChange={(e) => {
+            handleInput(e);
+          }}
+        ></input>
+        
+        <br></br>
+        <Button color="red" variant="contained" onClick={ handleUpload}>
+          Upload
+        </Button>
+      <div style={{display:"flex",flexDirection:"column"}}>
       {
         allPosts.map((post)=>{
           return <PostCard key={post.pid} post={post}></PostCard>
         })
       }
+      </div>
     </>
   );
 };  

@@ -69,7 +69,8 @@ const Signup = (props) => {
           userID: uid,
           userName: userName,
           profilePictureUrl: profilePictureUrl,
-          postsCreated:[]
+          postsCreated:[],
+          saved:[]
         });
         props.history.push("/");
       }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth } from "../firebase/firebase";
+import { auth, fbDB } from "../firebase/firebase";
 // context created
 export const AuthContext = React.createContext();
 
@@ -21,11 +21,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // attach a listner on compdidmount for login and logout events
-    auth.onAuthStateChanged((user) => {
-      console.log("Inside auth state change");
-      console.log(user);
-      setUser(user);
-    });
+   let unsub = auth.onAuthStateChanged( (user) => {
+      fbDB.collection("users").doc(user.uid).get().then((snapShot)=>{
+      console.log("snapshot");
+      console.log(snapShot.data());
+      let userPhoto = snapShot.data().profilePictureUrl;
+      let userObj ={...user, userPhoto:userPhoto}  
+      setUser(userObj);
+    })
+  })
   }, []);
 
   let value = {
