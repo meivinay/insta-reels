@@ -1,23 +1,56 @@
-import { Button } from "@material-ui/core";
+import { Avatar, Button, IconButton} from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthProvider";
 import {uuid} from "uuidv4";
 import { fbDB, fbStorage } from "../firebase/firebase";
 import PostCard from "../components/PostCard";
-
+import Profile from "./Profile"
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { Link, useHistory } from "react-router-dom";
+import { makeStyles } from "@material-ui/core";
+import PublishIcon from '@material-ui/icons/Publish';
 const Feeds = (props) => {
   const [video, setVideo] = useState(null);
   const [allPosts, setAllPosts] = useState([]);
-  let { signout, currentUser } = useContext(AuthContext);
+  let { signout, currentUser,displayName,profilePicture , handleCurrentUser} = useContext(AuthContext);
   let handleSignout = async () => {
     await signout();
     props.history.push("/login");
   };
+  let useStyles = makeStyles({
+    border: {
+      border: "1px solid black",
+    },
+    borderTop: {
+      borderTop: "1px solid red",
+    },
+    height: {
+      height: "3rem",
+    },
+    flexRow: {
+      display: "flex",
+      justifyContent: "space-evenly",
+      alignItems: "center",
+    },
+    containerPaddingNone: {
+      padding: "0",
+    },
+    profile:{
+      position:"absolute",
+      top:"5rem",
+      right:"3rem"
+    },
+    logOut:{
+      position:"absolute",
+      top:"8rem",
+      right:"3rem"
+    }
+  });
 
+  let classes = useStyles();
   let handleInput = (e) => {
     let videofile = e.target.files[0];
-    console.log(videofile);
     setVideo(videofile);
   };
   let handleUpload = async () => {
@@ -55,8 +88,16 @@ const Feeds = (props) => {
       console.log("error " +e);
     }
   };
+useEffect(()=>{
+  let uid = currentUser.uid;
 
-
+  fbDB.collection("users").doc(uid).get().then((snapShot)=>{
+    let data = snapShot.data();
+    let dpUrl = data.profilePictureUrl;
+    let name = data.userName;
+    handleCurrentUser( name, dpUrl)
+  })
+},[])
   useEffect(() => {
     let obj = {
       root: null,
@@ -82,7 +123,7 @@ const Feeds = (props) => {
       observer.observe(el);
     });
   }, [allPosts]);
-
+// get all posts
   useEffect(()=>{
        fbDB.collection("posts").get().then(snapshot=>{
          console.log("posts");
@@ -95,21 +136,30 @@ const Feeds = (props) => {
   },[])
   return (
     <>
-        <button onClick={handleSignout}>Logout</button>
-        <br></br>
+        <IconButton onClick={handleSignout} className= {classes.logOut}>
+         <ExitToAppIcon></ExitToAppIcon> 
+        </IconButton>
+        {/* <button onClick={handleSignout} className= {classes.logOut}>Logout</button> */}
         <input
+        style = {{position:"fixed", top:"93vh",right:"7rem", zIndex:"10"}}
         placeholder="upload"
           type="file"
+          onClick={(e) => {
+          e.currentTarget.value = null;
+        }}
           onChange={(e) => {
             handleInput(e);
           }}
         ></input>
-        
-        <br></br>
-        <Button color="red" variant="contained" onClick={ handleUpload}>
-          Upload
-        </Button>
-      <div style={{display:"flex",flexDirection:"column"}}>
+        <Link to ="/profile"  className={classes.profile}>
+        <Avatar src = {profilePicture}></Avatar>
+          {/* <Button >Profile</Button> */}
+        </Link>
+        <IconButton  style = {{position:"absolute",color:"blue", bottom:"1rem", right:"3rem" ,zIndex:"10"}} onClick={ handleUpload}>
+          <PublishIcon  fontSize="large" ></PublishIcon>
+        </IconButton>
+       
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",height:"100%"}}>
       {
         allPosts.map((post)=>{
           return <PostCard key={post.pid} post={post}></PostCard>

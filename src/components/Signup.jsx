@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthProvider";
 import { fbDB, fbStorage } from "../firebase/firebase";
+import logo from "../components/instaLogo.png";
 import {
   Card,
   Grid,
@@ -11,13 +12,10 @@ import {
   CardActions,
   makeStyles,
   Input,
+  Typography,
 } from "@material-ui/core";
 
-
-
-
 const Signup = (props) => {
-
   let useStyles = makeStyles({
     flexColumn: {
       display: "flex",
@@ -41,7 +39,7 @@ const Signup = (props) => {
   const [profile, setProfilePicture] = useState(null);
   const [err, setErr] = useState("");
 
-  let { signup } = useContext(AuthContext);
+  let { signup, handleCurrentUser } = useContext(AuthContext);
   const handleFileSubmit = (e) => {
     let fileObject = e.target.files[0];
     setProfilePicture(fileObject);
@@ -69,21 +67,28 @@ const Signup = (props) => {
           userID: uid,
           userName: userName,
           profilePictureUrl: profilePictureUrl,
-          postsCreated:[],
-          saved:[]
+          postsCreated: [],
+          saved: [],
         });
+        handleCurrentUser(userName, profilePictureUrl);
         props.history.push("/");
       }
     } catch (err) {
+      console.log(err.message);
       setErr(err.message);
     }
   };
   return (
     <>
-      <Grid container>
+      <Grid container style={{    display: "flex",
+    justifyContent: "flex-end", alignItems:"center"}}>
         <Grid item sm="6">
           <Card className={classes.cardSize}>
-            <CardMedia>image</CardMedia>
+            <Typography variant="subtitle1"></Typography>
+            <CardMedia
+              image={logo}
+              style={{ height: "20%", backgroundSize: "contain" }}
+            ></CardMedia>
             <CardContent
               className={`${classes.flexColumn} ${classes.cardContentSize}`}
             >

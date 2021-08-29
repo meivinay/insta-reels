@@ -8,8 +8,11 @@ import {
   TextField,
   Button,
   IconButton,
+  CardContent,
+  CardActions,
 } from "@material-ui/core";
 import FavoriteBorderOutlinedIcon from "@material-ui/icons/FavoriteBorderOutlined";
+import CommentIcon from "@material-ui/icons/Comment";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 import BookmarkBorderOutlinedIcon from "@material-ui/icons/BookmarkBorderOutlined";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -18,6 +21,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { AuthContext } from "../context/AuthProvider";
 import { fbDB } from "../firebase/firebase";
+import { flexbox } from "@material-ui/system";
 
 const PostCard = (props) => {
   // props has info of current post
@@ -27,14 +31,17 @@ const PostCard = (props) => {
   const [comment, setComment] = useState("");
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
-  let styles = {
-    height: "100%",
-    width: "100%",
-    scrollSnapAlign: "start",
-  };
+  const [showComment, setShowComment] = useState("false");
   // currentUser is a object
-  let { currentUser } = useContext(AuthContext);
+  let { currentUser, profilePicture } = useContext(AuthContext);
 
+  let viewComment = () => {
+    if (showComment) {
+      setShowComment(false);
+    } else {
+      setShowComment(true);
+    }
+  };
   // information about post
   useEffect(() => {
     let uid = props.post.uid;
@@ -63,7 +70,7 @@ const PostCard = (props) => {
     let commentObj = {
       uid: commenterUid,
       comment: comment,
-      commenterPhoto: currentUser.photo,
+      commenterPhoto: profilePicture,
     };
 
     let snapShopt = await fbDB.collection("posts").doc(postId).get();
@@ -75,7 +82,6 @@ const PostCard = (props) => {
   let hadnleLikeButton = async () => {
     let snapShot = await fbDB.collection("posts").doc(props.post.pid).get();
     let snapShotData = snapShot.data();
-    console.log(snapShotData);
     let likesArr = snapShotData.likes;
     let currentUid = currentUser.uid;
     if (liked) {
@@ -87,11 +93,8 @@ const PostCard = (props) => {
       setLiked(false);
       // console.log("unliked");
     } else {
-      snapShotData.likes.push(currentUid)
-      await fbDB
-        .collection("posts")
-        .doc(props.post.pid)
-        .set(snapShotData);
+      snapShotData.likes.push(currentUid);
+      await fbDB.collection("posts").doc(props.post.pid).set(snapShotData);
       // console.log("liked");
       setLiked(true);
     }
@@ -128,34 +131,73 @@ const PostCard = (props) => {
     }
   };
   return (
-    <Container style={{ border: "1px solid pink", margin: "0" }}>
-      <Card style={{ marginBottom: "3rem", border: "1px solid black" }}>
-        <Avatar
-          src={userInfo ? userInfo.profilePictureUrl : ""}
-          size="large"
-          style={{ border: "1px solid red" }}
-        ></Avatar>
-        <div
-          className="video-container"
+    <Container
+      style={{
+        position: "relative",
+        margin: "0",
+        height: "100vh",
+        padding: "0",
+      }}
+    >
+      <Card
+        style={{
+          position: "relative",
+          marginBottom: "3rem",
+
+          height: "100vh",
+        }}
+      >
+        <span>
+          <Avatar
+            src={userInfo ? userInfo.profilePictureUrl : ""}
+            size="large"
+            style={{
+              display: "inline-block",
+              position: "absolute",
+              top: "2rem",
+              left: "1rem"
+            }}
+          ></Avatar>
+          <Typography
+            style={{
+              display: "inline-block",
+              position: "absolute",
+              top: "2rem",
+              left: "4rem"
+            }}
+          >
+            {userInfo.userName}
+          </Typography>
+        </span>
+        <CardContent
           style={{
-            height: "100vh",
-            width: "20rem",
-            marginBottom: "2rem",
-            scrollSnapType: "y mandatory",
-            border: "1px solid red",
+            display: "flex",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
           }}
         >
-          <video
-            style={styles}
-            src={props.post.videoURL}
-            loop={true}
-            controls={true}
-            muted={true}
-          ></video>
-        </div>
-        <Typography variant="p" style={{ border: "1px solid red" }}>
-          Comments
-        </Typography>
+          <div
+            className="video-container"
+            style={{
+              height: "100%",
+              width: "20rem",
+              marginBottom: "2rem",
+              scrollSnapType: "y mandatory",
+            }}
+          >
+            <video
+              style={{ height: "100%", width: "100%", objectFit: "cover" }}
+              src={props.post.videoURL}
+              loop={true}
+              controls={true}
+              muted={true}
+            ></video>
+          </div>
+        </CardContent>
+      </Card>
+      <div style={{ position: "absolute", top: "10rem" }}>
+        <Typography variant="h5">Comments</Typography>'
         <TextField
           varaint="outlined"
           label="Add a Comment"
@@ -163,46 +205,80 @@ const PostCard = (props) => {
           value={comment}
           onChange={(e) => handleComment(e)}
         ></TextField>
-        <Button
-          vairant="contaiend"
-          color="secondary"
-          onClick={postComment}
-        ></Button>
-        <IconButton onClick={hadnleLikeButton}>
-          {liked ? (
-            <FavoriteIcon style={{ fill: "red" }}></FavoriteIcon>
-          ) : (
-            <FavoriteBorderOutlinedIcon></FavoriteBorderOutlinedIcon>
-          )}
-        </IconButton>
-        <IconButton onClick={handleSaveButton}>
-          {saved ? (
-            <BookmarkIcon style={{ fill: "black" }}></BookmarkIcon>
-          ) : (
-            <BookmarkBorderOutlinedIcon></BookmarkBorderOutlinedIcon>
-          )}
-        </IconButton>
-        {currComments
-          ? currComments.map((comment) => {
-              return (
-                <>
-                  <Avatar
-                    src={currentUser.userPhoto}
-                    style={{ border: "1px solid red" }}
-                  ></Avatar>
-                  <Typography
-                    key={comment}
-                    variant="p"
-                    style={{ border: "1px solid red" }}
-                    size="small"
-                  >
-                    {comment.comment}
-                  </Typography>
-                </>
-              );
-            })
-          : ""}
-      </Card>
+        <Button variant="contained" color="primary" onClick={postComment}>
+          Post Comment
+        </Button>
+        {showComment ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "6rem",
+              left: "1rem",
+              display: "flex",
+              flexDirection: "column",
+              height: "100vh",
+            }}
+          >
+            {currComments
+              ? currComments.map((comment) => {
+                  return (
+                    <div style={{ display: "flex" }}>
+                      <Avatar src={currentUser.userPhoto}></Avatar>
+                      <Typography key={comment} variant="h6" size="small">
+                        {comment.comment}
+                      </Typography>
+                    </div>
+                  );
+                })
+              : ""}
+          </div>
+        ) : (
+          ""
+        )}
+      </div>
+
+      <IconButton
+        style={{
+          position: "absolute",
+          bottom: "20rem",
+          right: "2rem",
+          color: "red",
+        }}
+        onClick={hadnleLikeButton}
+      >
+        {liked ? (
+          <FavoriteIcon fontSize="large" style={{ fill: "red" }}></FavoriteIcon>
+        ) : (
+          <FavoriteBorderOutlinedIcon fontSize="large"></FavoriteBorderOutlinedIcon>
+        )}
+      </IconButton>
+      <IconButton
+        onClick={viewComment}
+        style={{
+          position: "absolute",
+          bottom: "10rem",
+          right: "2rem",
+        }}
+      >
+        <CommentIcon fontSize="large"></CommentIcon>
+      </IconButton>
+      <IconButton
+        onClick={handleSaveButton}
+        style={{
+          position: "absolute",
+          bottom: "15rem",
+          right: "2rem",
+        }}
+      >
+        {saved ? (
+          <BookmarkIcon
+            fontSize="large"
+            style={{ fill: "black" }}
+          ></BookmarkIcon>
+        ) : (
+          <BookmarkBorderOutlinedIcon fontSize="large"></BookmarkBorderOutlinedIcon>
+        )}
+      </IconButton>
     </Container>
   );
 };
