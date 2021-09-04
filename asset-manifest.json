@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.js": "/insta-reels/static/js/main.682346fb.chunk.js",
+    "main.js.map": "/insta-reels/static/js/main.682346fb.chunk.js.map",
+    "runtime-main.js": "/insta-reels/static/js/runtime-main.c159b404.js",
+    "runtime-main.js.map": "/insta-reels/static/js/runtime-main.c159b404.js.map",
+    "static/js/2.885f4aef.chunk.js": "/insta-reels/static/js/2.885f4aef.chunk.js",
+    "static/js/2.885f4aef.chunk.js.map": "/insta-reels/static/js/2.885f4aef.chunk.js.map",
+    "index.html": "/insta-reels/index.html",
+    "static/js/2.885f4aef.chunk.js.LICENSE.txt": "/insta-reels/static/js/2.885f4aef.chunk.js.LICENSE.txt",
+    "static/media/crousel.4a07d8cd.png": "/insta-reels/static/media/crousel.4a07d8cd.png",
+    "static/media/img.924702ac.jpg": "/insta-reels/static/media/img.924702ac.jpg",
+    "static/media/instaLogo.a9ec6f1a.png": "/insta-reels/static/media/instaLogo.a9ec6f1a.png",
+    "static/media/v1.d5a3185a.mp4": "/insta-reels/static/media/v1.d5a3185a.mp4"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c159b404.js",
+    "static/js/2.885f4aef.chunk.js",
+    "static/js/main.682346fb.chunk.js"
+  ]
+}
